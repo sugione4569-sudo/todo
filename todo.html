@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sweet Checklist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #e8f0ff;
+      --bg2: #dce6ff;
+      --peach: #ffb5a7;
+      --mint: #b5e8d5;
+      --lavender: #c9b8f8;
+      --sky: #a8d8f0;
+      --yellow: #ffe599;
+      --coral: #ff9eb5;
+      --accent: #7b6cf6;
+      --accent-dk: #5a4de0;
+      --text: #3a3560;
+      --text-soft: #7b78a8;
+      --white: #ffffff;
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+
+      /* 클레이 그림자 공식: 진한 내부 + 밝은 하이라이트 */
+      --clay-shadow:
+        6px 6px 0px rgba(100, 80, 200, 0.18),
+        0 8px 24px rgba(80, 60, 180, 0.14),
+        inset 0 -4px 0px rgba(80, 60, 180, 0.12),
+        inset 0 2px 6px rgba(255, 255, 255, 0.8);
+
+      --clay-shadow-sm:
+        3px 3px 0px rgba(100, 80, 200, 0.15),
+        0 4px 14px rgba(80, 60, 180, 0.12),
+        inset 0 -3px 0px rgba(80, 60, 180, 0.10),
+        inset 0 2px 4px rgba(255, 255, 255, 0.75);
+
+      --clay-shadow-pressed:
+        1px 1px 0px rgba(100, 80, 200, 0.15),
+        0 2px 6px rgba(80, 60, 180, 0.10),
+        inset 0 -1px 0px rgba(80, 60, 180, 0.08),
+        inset 0 1px 2px rgba(255, 255, 255, 0.6);
+    }
+
+    body {
+      font-family: 'Jua', 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(201, 184, 248, 0.35) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(168, 216, 240, 0.35) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(181, 232, 213, 0.2) 0%, transparent 60%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 44px 16px 100px;
+    }
+
+    /* ── 떠다니는 장식 블롭 ── */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.4;
+      pointer-events: none;
+      z-index: 0;
+      animation: floatBlob 8s ease-in-out infinite;
+    }
+
+    .blob-1 {
+      width: 280px;
+      height: 280px;
+      background: var(--lavender);
+      top: -60px;
+      left: -80px;
+      animation-delay: 0s;
+    }
+
+    .blob-2 {
+      width: 220px;
+      height: 220px;
+      background: var(--mint);
+      bottom: 40px;
+      right: -60px;
+      animation-delay: 3s;
+    }
+
+    .blob-3 {
+      width: 160px;
+      height: 160px;
+      background: var(--peach);
+      top: 40%;
+      left: 10%;
+      animation-delay: 5s;
+    }
+
+    @keyframes floatBlob {
+
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+      }
+
+      50% {
+        transform: translateY(-18px) scale(1.04);
+      }
+    }
+
+    /* ── 헤더 ── */
+    header {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .header-emoji {
+      font-size: 3.2rem;
+      display: inline-block;
+      animation: bounce 2.2s ease-in-out infinite;
+      filter: drop-shadow(3px 6px 0 rgba(100, 80, 200, 0.18));
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    header h1 {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      text-shadow: 3px 3px 0 rgba(123, 108, 246, 0.2);
+      margin-top: 4px;
+    }
+
+    header p {
+      color: var(--text-soft);
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* ── 메인 카드 ── */
+    .card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 560px;
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 30px 28px;
+      box-shadow: var(--clay-shadow);
+      border: 2.5px solid rgba(255, 255, 255, 0.9);
+    }
+
+    /* ── 입력 영역 ── */
+    .input-section {
+      margin-bottom: 24px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    #todo-input {
+      flex: 1;
+      background: var(--bg);
+      border: 2.5px solid rgba(123, 108, 246, 0.25);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.97rem;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: inset 0 2px 6px rgba(100, 80, 200, 0.08);
+    }
+
+    #todo-input:focus {
+      border-color: var(--accent);
+      box-shadow: inset 0 2px 6px rgba(100, 80, 200, 0.08), 0 0 0 3px rgba(123, 108, 246, 0.15);
+    }
+
+    #todo-input::placeholder {
+      color: var(--text-soft);
+      font-weight: 600;
+    }
+
+    .add-btn {
+      background: linear-gradient(145deg, #9b8cff, var(--accent-dk));
+      border: none;
+      border-radius: var(--radius-md);
+      width: 52px;
+      height: 52px;
+      min-width: 52px;
+      color: #fff;
+      font-size: 1.7rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow:
+        4px 4px 0px rgba(90, 77, 224, 0.4),
+        0 6px 20px rgba(123, 108, 246, 0.35),
+        inset 0 -3px 0px rgba(60, 44, 160, 0.3),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+      line-height: 1;
+    }
+
+    .add-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 5px 7px 0px rgba(90, 77, 224, 0.4), 0 10px 26px rgba(123, 108, 246, 0.4), inset 0 -3px 0 rgba(60, 44, 160, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+
+    .add-btn:active {
+      transform: translateY(1px);
+      box-shadow: var(--clay-shadow-pressed);
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* 클레이 셀렉트/날짜 */
+    .clay-select,
+    .clay-date {
+      background: var(--bg);
+      border: 2.5px solid rgba(123, 108, 246, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 9px 13px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.83rem;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s;
+      box-shadow: inset 0 2px 4px rgba(100, 80, 200, 0.06);
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .select-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent);
+      font-size: 0.85rem;
+      pointer-events: none;
+    }
+
+    .clay-select {
+      padding-right: 28px;
+    }
+
+    .clay-select:focus,
+    .clay-date:focus {
+      border-color: var(--accent);
+    }
+
+    .clay-date {
+      flex: 1;
+      color-scheme: light;
+    }
+
+    .clay-select option {
+      background: #fff;
+    }
+
+    /* ── 통계 칩 ── */
+    .stats {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .stat-chip {
+      flex: 1;
+      border-radius: var(--radius-md);
+      padding: 12px 10px;
+      text-align: center;
+      box-shadow: var(--clay-shadow-sm);
+      border: 2px solid rgba(255, 255, 255, 0.9);
+    }
+
+    .stat-chip:nth-child(1) {
+      background: var(--lavender);
+    }
+
+    .stat-chip:nth-child(2) {
+      background: var(--yellow);
+    }
+
+    .stat-chip:nth-child(3) {
+      background: var(--mint);
+    }
+
+    .stat-chip .count {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .stat-chip .label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-soft);
+      margin-top: 3px;
+    }
+
+    /* ── 진행률 ── */
+    .progress-wrap {
+      margin-bottom: 20px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text-soft);
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      height: 14px;
+      background: var(--bg);
+      border-radius: 99px;
+      overflow: hidden;
+      box-shadow: inset 0 3px 6px rgba(100, 80, 200, 0.12);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #c4b5fd);
+      border-radius: 99px;
+      transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.4);
+      position: relative;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      right: 4px;
+      top: 3px;
+      width: 6px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+    }
+
+    /* ── 필터 탭 ── */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .filter-tabs button {
+      flex: 1;
+      background: var(--bg);
+      border: 2.5px solid rgba(123, 108, 246, 0.15);
+      border-radius: var(--radius-sm);
+      padding: 9px 6px;
+      color: var(--text-soft);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: var(--clay-shadow-sm);
+    }
+
+    .filter-tabs button:hover {
+      transform: translateY(-2px);
+    }
+
+    .filter-tabs button.active {
+      background: var(--lavender);
+      border-color: rgba(123, 108, 246, 0.3);
+      color: var(--text);
+      transform: translateY(-3px);
+      box-shadow:
+        3px 5px 0px rgba(100, 80, 200, 0.22),
+        0 6px 18px rgba(100, 80, 200, 0.16),
+        inset 0 -2px 0px rgba(80, 60, 180, 0.15),
+        inset 0 2px 4px rgba(255, 255, 255, 0.75);
+    }
+
+    /* ── 할 일 목록 ── */
+    #todo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-soft);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .empty-state .icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      display: block;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    /* ── 할 일 아이템 ── */
+    .todo-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      border-radius: var(--radius-lg);
+      padding: 16px 16px;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      border: 2.5px solid rgba(255, 255, 255, 0.85);
+    }
+
+    /* 우선순위별 배경색 */
+    .todo-item[data-priority="high"] {
+      background: #fff0f4;
+      box-shadow: 4px 5px 0px rgba(255, 100, 120, 0.2), 0 6px 18px rgba(255, 100, 120, 0.12), inset 0 -3px 0 rgba(255, 100, 120, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.9);
+    }
+
+    .todo-item[data-priority="medium"] {
+      background: #f4f0ff;
+      box-shadow: 4px 5px 0px rgba(123, 108, 246, 0.2), 0 6px 18px rgba(123, 108, 246, 0.12), inset 0 -3px 0 rgba(123, 108, 246, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.9);
+    }
+
+    .todo-item[data-priority="low"] {
+      background: #f0fff8;
+      box-shadow: 4px 5px 0px rgba(60, 200, 140, 0.2), 0 6px 18px rgba(60, 200, 140, 0.12), inset 0 -3px 0 rgba(60, 200, 140, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.9);
+    }
+
+    .todo-item:hover {
+      transform: translateY(-3px) rotate(-0.4deg);
+    }
+
+    .todo-item.done {
+      opacity: 0.5;
+      filter: grayscale(0.3);
+    }
+
+    .todo-item.done .todo-text {
+      text-decoration: line-through;
+      color: var(--text-soft);
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.85) translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* 커스텀 체크박스 */
+    .check-btn {
+      width: 26px;
+      height: 26px;
+      min-width: 26px;
+      border-radius: 9px;
+      border: 2.5px solid rgba(123, 108, 246, 0.3);
+      background: var(--white);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      margin-top: 1px;
+      box-shadow: 2px 2px 0 rgba(100, 80, 200, 0.12), inset 0 1px 3px rgba(255, 255, 255, 0.8);
+    }
+
+    .check-btn.checked {
+      background: var(--mint);
+      border-color: rgba(60, 180, 130, 0.4);
+      transform: scale(1.15);
+      box-shadow: 2px 2px 0 rgba(60, 180, 130, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.7);
+    }
+
+    .check-btn .checkmark {
+      color: #1a7a5a;
+      font-size: 14px;
+      display: none;
+      font-weight: 900;
+    }
+
+    .check-btn.checked .checkmark {
+      display: block;
+    }
+
+    .todo-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .todo-text {
+      font-size: 0.97rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.4;
+      word-break: break-all;
+    }
+
+    .todo-meta {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .tag-high {
+      background: var(--peach);
+      color: #b0304a;
+      box-shadow: 2px 2px 0 rgba(180, 60, 80, 0.15);
+    }
+
+    .tag-medium {
+      background: var(--lavender);
+      color: #4a3ab0;
+      box-shadow: 2px 2px 0 rgba(80, 60, 180, 0.15);
+    }
+
+    .tag-low {
+      background: var(--mint);
+      color: #1a7a5a;
+      box-shadow: 2px 2px 0 rgba(60, 160, 120, 0.15);
+    }
+
+    .tag-date {
+      background: var(--sky);
+      color: #1a5a80;
+      font-weight: 700;
+      box-shadow: 2px 2px 0 rgba(60, 120, 180, 0.15);
+    }
+
+    .tag-overdue {
+      background: var(--peach);
+      color: #b0304a;
+      font-weight: 800;
+      animation: shake 0.5s 1;
+    }
+
+    /* 수정 가능한 우선순위 태그 */
+    .tag-priority {
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.15s;
+    }
+
+    .tag-priority:hover {
+      transform: scale(1.1);
+    }
+
+    .tag-priority::after {
+      content: ' ↻';
+      font-size: 0.65rem;
+      opacity: 0.6;
+    }
+
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: rotate(0);
+      }
+
+      25% {
+        transform: rotate(-3deg);
+      }
+
+      75% {
+        transform: rotate(3deg);
+      }
+    }
+
+    @keyframes tagPop {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.25);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .todo-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.7);
+      border: 2px solid rgba(123, 108, 246, 0.15);
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      color: var(--text-soft);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 2px 2px 0 rgba(100, 80, 200, 0.1), inset 0 1px 3px rgba(255, 255, 255, 0.8);
+    }
+
+    .icon-btn:hover {
+      transform: scale(1.15) rotate(-5deg);
+      background: var(--peach);
+      border-color: rgba(255, 100, 120, 0.3);
+      color: #b0304a;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* ── 하단 ── */
+    .footer {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .clear-btn {
+      background: var(--peach);
+      border: 2.5px solid rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius-md);
+      padding: 10px 22px;
+      color: #8b2040;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: var(--clay-shadow-sm);
+    }
+
+    .clear-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 4px 6px 0 rgba(180, 60, 80, 0.2), 0 8px 20px rgba(180, 60, 80, 0.15), inset 0 -2px 0 rgba(180, 60, 80, 0.12), inset 0 2px 4px rgba(255, 255, 255, 0.7);
+    }
+
+    .clear-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* ── 스크롤바 ── */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--lavender);
+      border-radius: 99px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 떠다니는 배경 블롭 -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <header>
+    <div class="header-emoji">🍬</div>
+    <h1>Sweet Checklist</h1>
+    <p id="today-date"></p>
+  </header>
+
+  <div class="card">
+
+    <!-- 입력 -->
+    <div class="input-section">
+      <div class="input-row">
+        <input id="todo-input" type="text" placeholder="새 할 일을 입력하세요 ✏️" maxlength="100" />
+        <button class="add-btn" id="add-btn" title="추가">+</button>
+      </div>
+      <div class="meta-row">
+        <div class="select-wrap">
+          <select class="clay-select" id="priority-select">
+            <option value="medium">⚡ 보통</option>
+            <option value="high">🔥 높음</option>
+            <option value="low">🌿 낮음</option>
+          </select>
+        </div>
+        <input id="due-date" type="date" class="clay-date" />
+      </div>
+    </div>
+
+    <!-- 통계 -->
+    <div class="stats">
+      <div class="stat-chip">
+        <div class="count" id="stat-total">0</div>
+        <div class="label">전체</div>
+      </div>
+      <div class="stat-chip">
+        <div class="count" id="stat-remain">0</div>
+        <div class="label">진행 중</div>
+      </div>
+      <div class="stat-chip">
+        <div class="count" id="stat-done">0</div>
+        <div class="label">완료</div>
+      </div>
+    </div>
+
+    <!-- 진행률 -->
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>🍀 진행률</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- 필터 탭 -->
+    <div class="filter-tabs">
+      <button class="active" data-filter="all">전체</button>
+      <button data-filter="active">진행 중</button>
+      <button data-filter="done">완료 ✓</button>
+      <button data-filter="high">🔥 높음</button>
+    </div>
+
+    <!-- 목록 -->
+    <div id="todo-list"></div>
+
+    <!-- 하단 -->
+    <div class="footer">
+      <button class="clear-btn" id="clear-done-btn">🗑 완료 항목 삭제</button>
+    </div>
+  </div>
+
+  <script>
+    // ── 상태 ──
+    let todos = JSON.parse(localStorage.getItem('todos_clay') || '[]');
+    let filter = 'all';
+
+    // ── 날짜 ──
+    const now = new Date();
+    document.getElementById('today-date').textContent =
+      now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+    document.getElementById('due-date').value = now.toISOString().split('T')[0];
+
+    const priorityLabel = { high: '🔥 높음', medium: '⚡ 보통', low: '🌿 낮음' };
+
+    // ── 렌더링 ──
+    function render() {
+      const list = document.getElementById('todo-list');
+      const filtered = todos.filter(t => {
+        if (filter === 'active') return !t.done;
+        if (filter === 'done') return t.done;
+        if (filter === 'high') return t.priority === 'high';
+        return true;
+      });
+
+      list.innerHTML = '';
+      if (filtered.length === 0) {
+        list.innerHTML = `<div class="empty-state"><span class="icon">🌸</span>할 일이 없어요!<br>새로운 할 일을 추가해보세요 😊</div>`;
+      } else {
+        filtered.forEach(t => list.appendChild(createItem(t)));
+      }
+      updateStats();
+    }
+
+    function createItem(t) {
+      const div = document.createElement('div');
+      div.className = 'todo-item' + (t.done ? ' done' : '');
+      div.dataset.priority = t.priority;
+
+      let dateTag = '';
+      if (t.dueDate) {
+        const due = new Date(t.dueDate + 'T23:59:59');
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const isOverdue = !t.done && due < today;
+        const dueStr = new Date(t.dueDate).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+        dateTag = `<span class="tag ${isOverdue ? 'tag-overdue' : 'tag-date'}">📅 ${dueStr}${isOverdue ? ' 지남!' : ''}</span>`;
+      }
+
+      div.innerHTML = `
+      <button class="check-btn ${t.done ? 'checked' : ''}" data-id="${t.id}">
+        <span class="checkmark">✓</span>
+      </button>
+      <div class="todo-body">
+        <div class="todo-text">${escapeHTML(t.text)}</div>
+        <div class="todo-meta" style="position:relative">
+          <span class="tag tag-${t.priority} tag-priority" data-id="${t.id}">${priorityLabel[t.priority]}</span>
+          ${dateTag}
+        </div>
+      </div>
+      <div class="todo-actions">
+        <button class="icon-btn del" data-id="${t.id}" title="삭제">🗑</button>
+      </div>
+    `;
+      div.querySelector('.check-btn').addEventListener('click', () => toggle(t.id));
+      div.querySelector('.del').addEventListener('click', () => remove(t.id));
+      div.querySelector('.tag-priority').addEventListener('click', function () { cyclePriority(t.id, this); });
+      return div;
+    }
+
+    function updateStats() {
+      const total = todos.length;
+      const done = todos.filter(t => t.done).length;
+      const remain = total - done;
+      const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-remain').textContent = remain;
+      document.getElementById('stat-done').textContent = done;
+      document.getElementById('progress-pct').textContent = pct + '%';
+      document.getElementById('progress-fill').style.width = pct + '%';
+    }
+
+    // ── CRUD ──
+    function add() {
+      const input = document.getElementById('todo-input');
+      const text = input.value.trim();
+      if (!text) { input.focus(); wiggle(input); return; }
+      todos.unshift({
+        id: Date.now(),
+        text,
+        done: false,
+        priority: document.getElementById('priority-select').value,
+        dueDate: document.getElementById('due-date').value,
+        createdAt: new Date().toISOString()
+      });
+      save(); render();
+      input.value = '';
+      input.focus();
+    }
+
+    function wiggle(el) {
+      el.style.animation = 'none';
+      el.offsetHeight;
+      el.style.animation = 'shake 0.4s ease';
+      el.style.borderColor = 'rgba(255,100,120,0.6)';
+      setTimeout(() => { el.style.animation = ''; el.style.borderColor = ''; }, 450);
+    }
+
+    // ── 우선순위 순환 ──
+    const priorityCycle = { high: 'medium', medium: 'low', low: 'high' };
+
+    function cyclePriority(id, tagEl) {
+      const t = todos.find(t => t.id === id);
+      if (!t) return;
+      t.priority = priorityCycle[t.priority];
+      save();
+
+      // 카드 전체 재렌더 없이 태그만 업데이트
+      tagEl.className = `tag tag-${t.priority} tag-priority`;
+      tagEl.textContent = priorityLabel[t.priority];
+
+      // 카드 배경색 업데이트
+      const card = tagEl.closest('.todo-item');
+      if (card) card.dataset.priority = t.priority;
+
+      // 태그에만 살짝 튀기는 애니메이션
+      tagEl.style.animation = 'none';
+      tagEl.offsetHeight;
+      tagEl.style.animation = 'tagPop 0.3s cubic-bezier(0.34,1.56,0.64,1)';
+    }
+
+    function toggle(id) {
+      const t = todos.find(t => t.id === id);
+      if (t) { t.done = !t.done; save(); render(); }
+    }
+
+    function remove(id) { todos = todos.filter(t => t.id !== id); save(); render(); }
+    function save() { localStorage.setItem('todos_clay', JSON.stringify(todos)); }
+
+    // ── 이벤트 ──
+    document.getElementById('add-btn').addEventListener('click', add);
+    document.getElementById('todo-input').addEventListener('keydown', e => { if (e.key === 'Enter') add(); });
+    document.getElementById('clear-done-btn').addEventListener('click', () => {
+      if (!todos.some(t => t.done)) return;
+      if (confirm('완료된 항목을 모두 삭제할까요? 🗑')) {
+        todos = todos.filter(t => !t.done);
+        save(); render();
+      }
+    });
+    document.querySelectorAll('.filter-tabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-tabs button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filter = btn.dataset.filter;
+        render();
+      });
+    });
+
+    function escapeHTML(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    render();
+  </script>
+</body>
+
+</html>
